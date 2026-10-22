@@ -1,0 +1,6 @@
+items_private/
+results/private/
+__pycache__/
+*.pyc
+fetch.log
+*.server.log
