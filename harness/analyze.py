@@ -250,6 +250,23 @@ def main():
             report["speed_strict"] = speed_ratio(A, B, common)
             report["speed_lenient"] = speed_ratio(A, B, common, lenient=True)
         report["noise_floor"] = noise_floor(main_runs, noise)
+        # Amendment 2026-10-23: the harder supplement is a pre-registered secondary analysis; the verdict stays on the 75.
+        hard = {a: load("hard", a) for a in cfg.ARMS}
+        hard_common = sorted(i for i in hard["A"] if i in hard["B"])
+        if hard_common:
+            hard_labels = difficulties("hard")
+            report["hard_arms"] = {a: describe(r, hard_labels) for a, r in hard.items() if r}
+            report["hard_B_minus_A_lenient"] = compare(hard["B"], hard["A"], hard_common, hard_labels, lenient=True)
+            report["hard_B_minus_A_strict"] = compare(hard["B"], hard["A"], hard_common, hard_labels)
+            # For the author's prediction: every complex task, i.e. public tasks with 12+ reference calls plus the supplement.
+            cx = [i for i in common if labels.get(i, "").startswith("complex")]
+            both = dict(labels); both.update(hard_labels)
+            AA = dict(A)
+            AA.update(hard["A"])
+            BB = dict(B)
+            BB.update(hard["B"])
+            ids = sorted(cx + hard_common)
+            report["complex_all_B_minus_A_lenient"] = compare(BB, AA, ids, both, lenient=True)
         if common:
             report["verdict"] = verdict(report["B_minus_A_strict"], report["B_minus_A_lenient"], report["speed_strict"])
         path = os.path.join(cfg.RESULTS_DIR, "report.json")

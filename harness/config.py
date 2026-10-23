@@ -8,6 +8,8 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ITEMS_PUBLIC = os.path.join(ROOT, "items_public", "tool_items.py")
 ITEMS_PRIVATE = os.path.join(ROOT, "items_private", "tool_items.py")
+# Amendment 2026-10-23 (PREREG.md): harder public supplement, a separate file so the frozen set is untouched.
+ITEMS_PUBLIC_HARD = os.path.join(ROOT, "items_public", "tool_items_hard.py")
 RESULTS_DIR = os.path.join(ROOT, "results")
 PRIVATE_RESULTS_DIR = os.path.join(RESULTS_DIR, "private")  # git-ignored: never published
 MODELS_DIR = os.path.expanduser("~/models/lfm25-tools-test")
@@ -70,7 +72,7 @@ MAX_TOKENS = 16384  # per assistant turn; a turn cut off here is recorded as tru
 MAX_TOOL_TURNS = 40  # references need 7-16 calls; room for exploratory reads and recovery from tool errors
 REQUEST_TIMEOUT_S = 3 * 3600
 
-SEEDS = {"main": 1001, "noise": 2002, "private": 1001, "pilot": 7}
+SEEDS = {"main": 1001, "noise": 2002, "private": 1001, "pilot": 7, "hard": 1001, "hard_pilot": 7}
 NOISE_FALLBACK_N = 20  # the noise run covers every public task; this subset is the pre-registered fallback
 
 

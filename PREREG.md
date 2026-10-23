@@ -189,6 +189,29 @@ Frozen 2026-10-23, before any test model was run (sha256). The private set is no
     bf1cb27b02f21a9aff68aeafae5f7a3a918bd6ea05c08867db036fdd0cb547b4  harness/regrade.py
     8407fb7ea56d3764f17f0a2e25036ef90329638f58210fcbff4e4dce9d1c79fc  harness/run.py
 
+## Amendment 1 — 2026-10-23, pushed before either test model saw any public test task
+
+**What happened after the freeze.**
+1. **Order of steps (my error).** The lab's rule is to calibrate difficulty on a model outside the comparison *before* freezing. This pre-registration was frozen and pushed first and calibrated second. The public test tasks T01–T75 are unchanged.
+2. **Model folder.** `fetch.py` saved the models to `~/models/lfm25-test`, but the harness expects `~/models/lfm25-tools-test`. The folder was renamed; no frozen file changed. Both model files match their pre-registered sha256.
+3. **Pilot on the six calibration tasks (TP1–TP6).** Outside model Muse Glimmer 30B: 6 of 6. Arm A (Qwen3.6): 6 of 6. Arm B (LFM2.5): 3 of 6. No tool-call repairs were needed on either arm; no truncations or server errors. Arm A loads and runs at the full 65,536-token context, so the memory fallback is not used. About 3.5 minutes per task (A) and 3 (B).
+4. **Calibration on the separate private set** (40 tasks, never published; calibration only): arm A solved more than 90%, which signals a ceiling risk for arm A on the public set.
+
+**What is added.** A harder public supplement, written after the pilot and before any test model saw it: **25 tasks H01–H25** plus **3 calibration tasks HP1–HP3**, in `items_public/tool_items_hard.py`. It reuses the same five environments (imported from the frozen `tool_items.py`, which is not modified). Every task needs 12–20 reference calls and combines at least four of: a rule found only through the policy tool, a mid-task rule error that forces re-planning, state that must be re-read after a write, a batch with look-alikes, a computed argument, ordering; four tasks (H03, H10, H12, H22) require deliberately not doing something the prompt makes tempting. Calibration on the outside model: Muse Glimmer 30B solved HP1–HP3 (3 of 3), taking about twice the turns and time of the original calibration tasks. Three tasks are too few to show the supplement is not also near the ceiling for arm A; the write-up will say so.
+
+**How it is analysed (fixed now, before running).**
+- **The verdict does not change.** The pass/fail rule above is applied to the original 75 public tasks exactly as frozen.
+- **Secondary, pre-registered:** the same comparison (lenient and strict, with intervals) on the 25 supplement tasks, reported next to the verdict.
+- **The author's prediction** ("especially in complex tasks") is scored on all complex tasks together: the original public tasks with 12 or more reference calls (43) plus all 25 supplement tasks (each needs 12 or more), 68 tasks in total (`complex_all` in `harness/analyze.py`).
+- **Runs:** `hard` (supplement, both arms, seed 1001) is added. The noise re-run stays on the original 75 tasks. Run order: main A, main B, hard A, hard B, then noise A and B.
+
+**Files added or changed by this amendment (sha256).** The frozen `items_public/tool_items.py` (c947665e…) and `fetch.py` are unchanged.
+
+    536640c6c47268ba108af0c01dde4321ec510a4aef4f464fcfa961cbbc4e74fa  items_public/tool_items_hard.py
+    79d599766952efde09b74f074bf7cd8d967491014697203b8e5d54cc061ea2e1  harness/config.py
+    34f9147b38da0bd9ac22024e38fd5713eed3b6c96e19f9a4739931c82d545c80  harness/run.py
+    0f884ffe20ba054ab8d5c87757096bc5dfe8c0b85dd626e996f12c604af60b7f  harness/analyze.py
+
 ## Deviations after freezing
 
 (None yet.)

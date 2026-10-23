@@ -37,8 +37,8 @@ def load_module(path, name):
 
 
 def load_set(which):
-    """Returns ({task_id: task}, ENVS, module) for "public" or "private". Each task carries its own ENVS."""
-    path = cfg.ITEMS_PUBLIC if which == "public" else cfg.ITEMS_PRIVATE
+    """Returns ({task_id: task}, ENVS, module) for "public", "private" or "hard". Each task carries its own ENVS."""
+    path = {"public": cfg.ITEMS_PUBLIC, "private": cfg.ITEMS_PRIVATE, "hard": cfg.ITEMS_PUBLIC_HARD}[which]
     mod = load_module(path, "tool_items_" + which)
     tasks = {}
     for t in mod.TASKS:
@@ -49,14 +49,14 @@ def load_set(which):
 
 
 def is_calibration(task_id):
-    return task_id.startswith("TP")
+    return task_id.startswith(("TP", "HP"))
 
 
 def select(run, fallback=False):
-    """Returns (ordered ids, tasks, envs). Calibration tasks (TP*) are used only by the pilot."""
-    which = "private" if run == "private" else "public"
+    """Returns (ordered ids, tasks, envs). Calibration tasks (TP*, HP*) are used only by the pilots."""
+    which = "private" if run == "private" else "hard" if run in ("hard", "hard_pilot") else "public"
     tasks, envs, _ = load_set(which)
-    ids = [i for i in tasks if is_calibration(i) == (run == "pilot")]
+    ids = [i for i in tasks if is_calibration(i) == (run in ("pilot", "hard_pilot"))]
     order = cfg.stable_order(ids)
     if run == "noise" and fallback:
         order = order[: cfg.NOISE_FALLBACK_N]
@@ -242,7 +242,7 @@ def main():
     who = ap.add_mutually_exclusive_group(required=True)
     who.add_argument("--arm", choices=sorted(cfg.ARMS))
     who.add_argument("--outside", default="", help="pilot only: name of a model that is not a test arm (needs --model-path)")
-    ap.add_argument("--run", required=True, choices=["pilot", "main", "noise", "private"])
+    ap.add_argument("--run", required=True, choices=["pilot", "main", "noise", "private", "hard", "hard_pilot"])
     ap.add_argument("--fallback", action="store_true", help="noise run only: the pre-registered 20-task subset")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out-name", default="", help="results subfolder (default: the run name)")
@@ -253,7 +253,7 @@ def main():
     args = ap.parse_args()
 
     if args.outside:
-        if args.run != "pilot" or not args.model_path:
+        if args.run not in ("pilot", "hard_pilot") or not args.model_path:
             raise SystemExit("--outside is for the pilot only and needs --model-path")
         arm_name = "X-" + args.outside
         arm = {"label": "outside: " + args.outside, "sampler": json.loads(args.sampler), "extra_body": {}}
