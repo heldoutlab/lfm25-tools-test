@@ -1,0 +1,685 @@
+{
+  "arms": {
+    "A": {
+      "n": 75,
+      "accuracy_strict": 90.66666666666667,
+      "accuracy_lenient": 90.66666666666667,
+      "envs": {
+        "exams": {
+          "strict": 86.66666666666667,
+          "lenient": 86.66666666666667,
+          "n": 15
+        },
+        "kitchen": {
+          "strict": 93.33333333333333,
+          "lenient": 93.33333333333333,
+          "n": 15
+        },
+        "moderation": {
+          "strict": 100.0,
+          "lenient": 100.0,
+          "n": 15
+        },
+        "library": {
+          "strict": 73.33333333333333,
+          "lenient": 73.33333333333333,
+          "n": 15
+        },
+        "assets": {
+          "strict": 100.0,
+          "lenient": 100.0,
+          "n": 15
+        }
+      },
+      "difficulty": {
+        "complex (12+ calls)": {
+          "strict": 93.02325581395348,
+          "lenient": 93.02325581395348,
+          "n": 43
+        },
+        "standard (under 12 calls)": {
+          "strict": 87.5,
+          "lenient": 87.5,
+          "n": 32
+        }
+      },
+      "truncated_tasks": 0,
+      "server_error_tasks": 0,
+      "turn_limit_tasks": 1,
+      "tasks_needing_repair": 0,
+      "repair_events": {},
+      "tool_errors_returned": 25,
+      "mean_turns": 14.293333333333333,
+      "mean_tokens": 8648.666666666666,
+      "median_tokens": 8202,
+      "mean_seconds": 297.73466666666667,
+      "median_seconds": 278.2,
+      "seconds_per_solved_strict": 328.38382352941176,
+      "seconds_per_solved_lenient": 328.38382352941176,
+      "tokens_per_solved_strict": 9538.970588235294,
+      "tokens_per_solved_lenient": 9538.970588235294,
+      "decode_tok_per_s": 33.52609397744261,
+      "prompt_tok_per_s": 284.0215159308659,
+      "hours": 6.202805555555555
+    },
+    "B": {
+      "n": 75,
+      "accuracy_strict": 49.333333333333336,
+      "accuracy_lenient": 49.333333333333336,
+      "envs": {
+        "exams": {
+          "strict": 26.666666666666668,
+          "lenient": 26.666666666666668,
+          "n": 15
+        },
+        "kitchen": {
+          "strict": 40.0,
+          "lenient": 40.0,
+          "n": 15
+        },
+        "moderation": {
+          "strict": 80.0,
+          "lenient": 80.0,
+          "n": 15
+        },
+        "library": {
+          "strict": 46.666666666666664,
+          "lenient": 46.666666666666664,
+          "n": 15
+        },
+        "assets": {
+          "strict": 53.333333333333336,
+          "lenient": 53.333333333333336,
+          "n": 15
+        }
+      },
+      "difficulty": {
+        "complex (12+ calls)": {
+          "strict": 58.13953488372093,
+          "lenient": 58.13953488372093,
+          "n": 43
+        },
+        "standard (under 12 calls)": {
+          "strict": 37.5,
+          "lenient": 37.5,
+          "n": 32
+        }
+      },
+      "truncated_tasks": 1,
+      "server_error_tasks": 0,
+      "turn_limit_tasks": 2,
+      "tasks_needing_repair": 0,
+      "repair_events": {},
+      "tool_errors_returned": 96,
+      "mean_turns": 15.36,
+      "mean_tokens": 9833.493333333334,
+      "median_tokens": 8673,
+      "mean_seconds": 206.23466666666667,
+      "median_seconds": 181.1,
+      "seconds_per_solved_strict": 418.04324324324324,
+      "seconds_per_solved_lenient": 418.04324324324324,
+      "tokens_per_solved_strict": 19932.756756756757,
+      "tokens_per_solved_lenient": 19932.756756756757,
+      "decode_tok_per_s": 51.68060836916059,
+      "prompt_tok_per_s": 427.0252535694126,
+      "hours": 4.296555555555556
+    }
+  },
+  "B_minus_A_strict": {
+    "n": 75,
+    "B": 49.333333333333336,
+    "A": 90.66666666666667,
+    "diff_B_minus_A": -41.333333333333336,
+    "diff_ci": [
+      -52.00000000000001,
+      -30.666666666666664
+    ],
+    "envs": {
+      "library": {
+        "n": 15,
+        "B": 46.666666666666664,
+        "A": 73.33333333333333,
+        "diff_B_minus_A": -26.666666666666664,
+        "diff_ci": [
+          -46.66666666666667,
+          -6.666666666666664
+        ]
+      },
+      "assets": {
+        "n": 15,
+        "B": 53.333333333333336,
+        "A": 100.0,
+        "diff_B_minus_A": -46.666666666666664,
+        "diff_ci": [
+          -73.33333333333333,
+          -20.0
+        ]
+      },
+      "kitchen": {
+        "n": 15,
+        "B": 40.0,
+        "A": 93.33333333333333,
+        "diff_B_minus_A": -53.33333333333333,
+        "diff_ci": [
+          -80.0,
+          -26.66666666666667
+        ]
+      },
+      "moderation": {
+        "n": 15,
+        "B": 80.0,
+        "A": 100.0,
+        "diff_B_minus_A": -20.0,
+        "diff_ci": [
+          -40.0,
+          0.0
+        ]
+      },
+      "exams": {
+        "n": 15,
+        "B": 26.666666666666668,
+        "A": 86.66666666666667,
+        "diff_B_minus_A": -60.0,
+        "diff_ci": [
+          -86.66666666666667,
+          -26.666666666666664
+        ]
+      }
+    },
+    "difficulty": {
+      "standard (under 12 calls)": {
+        "n": 32,
+        "B": 37.5,
+        "A": 87.5,
+        "diff_B_minus_A": -50.0,
+        "diff_ci": [
+          -68.75,
+          -31.25
+        ]
+      },
+      "complex (12+ calls)": {
+        "n": 43,
+        "B": 58.13953488372093,
+        "A": 93.02325581395348,
+        "diff_B_minus_A": -34.883720930232556,
+        "diff_ci": [
+          -48.83720930232558,
+          -20.930232558139537
+        ]
+      }
+    }
+  },
+  "B_minus_A_lenient": {
+    "n": 75,
+    "B": 49.333333333333336,
+    "A": 90.66666666666667,
+    "diff_B_minus_A": -41.333333333333336,
+    "diff_ci": [
+      -52.00000000000001,
+      -30.666666666666664
+    ],
+    "envs": {
+      "library": {
+        "n": 15,
+        "B": 46.666666666666664,
+        "A": 73.33333333333333,
+        "diff_B_minus_A": -26.666666666666664,
+        "diff_ci": [
+          -46.66666666666667,
+          -6.666666666666664
+        ]
+      },
+      "assets": {
+        "n": 15,
+        "B": 53.333333333333336,
+        "A": 100.0,
+        "diff_B_minus_A": -46.666666666666664,
+        "diff_ci": [
+          -73.33333333333333,
+          -20.0
+        ]
+      },
+      "kitchen": {
+        "n": 15,
+        "B": 40.0,
+        "A": 93.33333333333333,
+        "diff_B_minus_A": -53.33333333333333,
+        "diff_ci": [
+          -80.0,
+          -26.66666666666667
+        ]
+      },
+      "moderation": {
+        "n": 15,
+        "B": 80.0,
+        "A": 100.0,
+        "diff_B_minus_A": -20.0,
+        "diff_ci": [
+          -40.0,
+          0.0
+        ]
+      },
+      "exams": {
+        "n": 15,
+        "B": 26.666666666666668,
+        "A": 86.66666666666667,
+        "diff_B_minus_A": -60.0,
+        "diff_ci": [
+          -86.66666666666667,
+          -26.666666666666664
+        ]
+      }
+    },
+    "difficulty": {
+      "standard (under 12 calls)": {
+        "n": 32,
+        "B": 37.5,
+        "A": 87.5,
+        "diff_B_minus_A": -50.0,
+        "diff_ci": [
+          -68.75,
+          -31.25
+        ]
+      },
+      "complex (12+ calls)": {
+        "n": 43,
+        "B": 58.13953488372093,
+        "A": 93.02325581395348,
+        "diff_B_minus_A": -34.883720930232556,
+        "diff_ci": [
+          -48.83720930232558,
+          -20.930232558139537
+        ]
+      }
+    }
+  },
+  "strict_minus_lenient_points": {
+    "A": 0.0,
+    "B": 0.0
+  },
+  "speed_strict": {
+    "ratio_A_over_B": 0.7855259685140704,
+    "ci": [
+      0.5701997458894381,
+      1.038936360060293
+    ],
+    "resamples_with_zero_solved": 0
+  },
+  "speed_lenient": {
+    "ratio_A_over_B": 0.7855259685140704,
+    "ci": [
+      0.5701997458894381,
+      1.038936360060293
+    ],
+    "resamples_with_zero_solved": 0
+  },
+  "noise_floor": {
+    "strict": 6.666666666666657,
+    "lenient": 6.666666666666657,
+    "per_arm": {
+      "A": {
+        "n": 75,
+        "strict": 6.666666666666657,
+        "lenient": 6.666666666666657,
+        "flips_strict": 7,
+        "flips_lenient": 7
+      },
+      "B": {
+        "n": 75,
+        "strict": 0.0,
+        "lenient": 0.0,
+        "flips_strict": 22,
+        "flips_lenient": 22
+      }
+    }
+  },
+  "hard_arms": {
+    "A": {
+      "n": 25,
+      "accuracy_strict": 64.0,
+      "accuracy_lenient": 64.0,
+      "envs": {
+        "library": {
+          "strict": 60.0,
+          "lenient": 60.0,
+          "n": 5
+        },
+        "kitchen": {
+          "strict": 60.0,
+          "lenient": 60.0,
+          "n": 5
+        },
+        "assets": {
+          "strict": 60.0,
+          "lenient": 60.0,
+          "n": 5
+        },
+        "moderation": {
+          "strict": 80.0,
+          "lenient": 80.0,
+          "n": 5
+        },
+        "exams": {
+          "strict": 60.0,
+          "lenient": 60.0,
+          "n": 5
+        }
+      },
+      "difficulty": {
+        "complex (12+ calls)": {
+          "strict": 64.0,
+          "lenient": 64.0,
+          "n": 25
+        }
+      },
+      "truncated_tasks": 1,
+      "server_error_tasks": 0,
+      "turn_limit_tasks": 0,
+      "tasks_needing_repair": 0,
+      "repair_events": {},
+      "tool_errors_returned": 9,
+      "mean_turns": 18.36,
+      "mean_tokens": 13778.72,
+      "median_tokens": 13571,
+      "mean_seconds": 470.844,
+      "median_seconds": 479.7,
+      "seconds_per_solved_strict": 735.69375,
+      "seconds_per_solved_lenient": 735.69375,
+      "tokens_per_solved_strict": 21529.25,
+      "tokens_per_solved_lenient": 21529.25,
+      "decode_tok_per_s": 33.25016831430512,
+      "prompt_tok_per_s": 267.45925028175503,
+      "hours": 3.26975
+    },
+    "B": {
+      "n": 25,
+      "accuracy_strict": 20.0,
+      "accuracy_lenient": 20.0,
+      "envs": {
+        "library": {
+          "strict": 0.0,
+          "lenient": 0.0,
+          "n": 5
+        },
+        "kitchen": {
+          "strict": 20.0,
+          "lenient": 20.0,
+          "n": 5
+        },
+        "assets": {
+          "strict": 0.0,
+          "lenient": 0.0,
+          "n": 5
+        },
+        "moderation": {
+          "strict": 40.0,
+          "lenient": 40.0,
+          "n": 5
+        },
+        "exams": {
+          "strict": 40.0,
+          "lenient": 40.0,
+          "n": 5
+        }
+      },
+      "difficulty": {
+        "complex (12+ calls)": {
+          "strict": 20.0,
+          "lenient": 20.0,
+          "n": 25
+        }
+      },
+      "truncated_tasks": 1,
+      "server_error_tasks": 0,
+      "turn_limit_tasks": 2,
+      "tasks_needing_repair": 0,
+      "repair_events": {},
+      "tool_errors_returned": 59,
+      "mean_turns": 19.24,
+      "mean_tokens": 14462.2,
+      "median_tokens": 11992,
+      "mean_seconds": 280.58799999999997,
+      "median_seconds": 222.7,
+      "seconds_per_solved_strict": 1402.94,
+      "seconds_per_solved_lenient": 1402.94,
+      "tokens_per_solved_strict": 72311.0,
+      "tokens_per_solved_lenient": 72311.0,
+      "decode_tok_per_s": 54.86924642566184,
+      "prompt_tok_per_s": 416.3974506926781,
+      "hours": 1.9485277777777776
+    }
+  },
+  "hard_B_minus_A_lenient": {
+    "n": 25,
+    "B": 20.0,
+    "A": 64.0,
+    "diff_B_minus_A": -44.0,
+    "diff_ci": [
+      -64.0,
+      -24.0
+    ],
+    "envs": {
+      "library": {
+        "n": 5,
+        "B": 0.0,
+        "A": 60.0,
+        "diff_B_minus_A": -60.0,
+        "diff_ci": [
+          -100.0,
+          -20.0
+        ]
+      },
+      "assets": {
+        "n": 5,
+        "B": 0.0,
+        "A": 60.0,
+        "diff_B_minus_A": -60.0,
+        "diff_ci": [
+          -100.0,
+          -20.0
+        ]
+      },
+      "kitchen": {
+        "n": 5,
+        "B": 20.0,
+        "A": 60.0,
+        "diff_B_minus_A": -40.0,
+        "diff_ci": [
+          -80.0,
+          0.0
+        ]
+      },
+      "moderation": {
+        "n": 5,
+        "B": 40.0,
+        "A": 80.0,
+        "diff_B_minus_A": -40.0,
+        "diff_ci": [
+          -80.0,
+          0.0
+        ]
+      },
+      "exams": {
+        "n": 5,
+        "B": 40.0,
+        "A": 60.0,
+        "diff_B_minus_A": -20.0,
+        "diff_ci": [
+          -60.0,
+          0.0
+        ]
+      }
+    },
+    "difficulty": {
+      "complex (12+ calls)": {
+        "n": 25,
+        "B": 20.0,
+        "A": 64.0,
+        "diff_B_minus_A": -44.0,
+        "diff_ci": [
+          -64.0,
+          -24.0
+        ]
+      }
+    }
+  },
+  "hard_B_minus_A_strict": {
+    "n": 25,
+    "B": 20.0,
+    "A": 64.0,
+    "diff_B_minus_A": -44.0,
+    "diff_ci": [
+      -64.0,
+      -24.0
+    ],
+    "envs": {
+      "library": {
+        "n": 5,
+        "B": 0.0,
+        "A": 60.0,
+        "diff_B_minus_A": -60.0,
+        "diff_ci": [
+          -100.0,
+          -20.0
+        ]
+      },
+      "assets": {
+        "n": 5,
+        "B": 0.0,
+        "A": 60.0,
+        "diff_B_minus_A": -60.0,
+        "diff_ci": [
+          -100.0,
+          -20.0
+        ]
+      },
+      "kitchen": {
+        "n": 5,
+        "B": 20.0,
+        "A": 60.0,
+        "diff_B_minus_A": -40.0,
+        "diff_ci": [
+          -80.0,
+          0.0
+        ]
+      },
+      "moderation": {
+        "n": 5,
+        "B": 40.0,
+        "A": 80.0,
+        "diff_B_minus_A": -40.0,
+        "diff_ci": [
+          -80.0,
+          0.0
+        ]
+      },
+      "exams": {
+        "n": 5,
+        "B": 40.0,
+        "A": 60.0,
+        "diff_B_minus_A": -20.0,
+        "diff_ci": [
+          -60.0,
+          0.0
+        ]
+      }
+    },
+    "difficulty": {
+      "complex (12+ calls)": {
+        "n": 25,
+        "B": 20.0,
+        "A": 64.0,
+        "diff_B_minus_A": -44.0,
+        "diff_ci": [
+          -64.0,
+          -24.0
+        ]
+      }
+    }
+  },
+  "complex_all_B_minus_A_lenient": {
+    "n": 68,
+    "B": 44.11764705882353,
+    "A": 82.3529411764706,
+    "diff_B_minus_A": -38.235294117647065,
+    "diff_ci": [
+      -50.0,
+      -26.470588235294123
+    ],
+    "envs": {
+      "library": {
+        "n": 14,
+        "B": 42.857142857142854,
+        "A": 71.42857142857143,
+        "diff_B_minus_A": -28.571428571428577,
+        "diff_ci": [
+          -50.00000000000001,
+          -7.142857142857139
+        ]
+      },
+      "assets": {
+        "n": 14,
+        "B": 42.857142857142854,
+        "A": 85.71428571428571,
+        "diff_B_minus_A": -42.857142857142854,
+        "diff_ci": [
+          -71.42857142857142,
+          -21.428571428571416
+        ]
+      },
+      "kitchen": {
+        "n": 17,
+        "B": 35.294117647058826,
+        "A": 82.3529411764706,
+        "diff_B_minus_A": -47.05882352941177,
+        "diff_ci": [
+          -70.58823529411765,
+          -23.529411764705884
+        ]
+      },
+      "moderation": {
+        "n": 14,
+        "B": 64.28571428571429,
+        "A": 92.85714285714286,
+        "diff_B_minus_A": -28.57142857142857,
+        "diff_ci": [
+          -50.00000000000001,
+          -7.142857142857139
+        ]
+      },
+      "exams": {
+        "n": 9,
+        "B": 33.333333333333336,
+        "A": 77.77777777777777,
+        "diff_B_minus_A": -44.444444444444436,
+        "diff_ci": [
+          -77.77777777777777,
+          -11.111111111111114
+        ]
+      }
+    },
+    "difficulty": {
+      "complex (12+ calls)": {
+        "n": 68,
+        "B": 44.11764705882353,
+        "A": 82.3529411764706,
+        "diff_B_minus_A": -38.235294117647065,
+        "diff_ci": [
+          -50.0,
+          -26.470588235294116
+        ]
+      }
+    }
+  },
+  "verdict": {
+    "rule": "1",
+    "score": "lenient",
+    "gap_B_minus_A": -41.333333333333336,
+    "ci": [
+      -52.00000000000001,
+      -30.666666666666664
+    ],
+    "subset_gap": null,
+    "headline": "FAILS"
+  }
+}

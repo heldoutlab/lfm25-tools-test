@@ -1,0 +1,309 @@
+<|start|>system<|message|>You are a helpful assistant
+
+Reasoning strength: high.
+
+In this environment you have access to a set of tools you can use to answer the user's question.
+
+You can invoke a function by writing a "<atem:function_calls>" block like the following:
+<atem:function_calls>
+<atem:invoke name="$FUNCTION_NAME">
+<atem:parameter name="$PARAMETER_NAME">$PARAMETER_VALUE</atem:parameter>
+...
+</atem:invoke>
+</atem:function_calls>
+
+String and scalar parameters should be specified as is, while lists and objects should use JSON format. Note that spaces for string values are not stripped. The output is not expected to be valid XML and is parsed with regular expressions.
+Here are the functions available in JSONSchema format:
+// Tool metadata
+{"name": "get_kitchen_info", "description": ""}
+{"name": "search_recipes", "description": ""}
+{"name": "get_recipe", "description": ""}
+{"name": "find_ingredients", "description": ""}
+{"name": "list_lots", "description": ""}
+{"name": "list_batches", "description": ""}
+{"name": "get_batch", "description": ""}
+{"name": "create_batch", "description": ""}
+{"name": "update_batch", "description": ""}
+{"name": "cancel_batch", "description": ""}
+{"name": "allocate_lot", "description": ""}
+{"name": "deallocate_lot", "description": ""}
+{"name": "release_batch", "description": ""}
+{"name": "quarantine_lot", "description": ""}
+// Function schemas
+{"name": "get_kitchen_info", "description": "Today's date, the production lines (daily capacity in portions, nut-free flag) and the planning and stock rules that the write tools enforce.", "parameters": {"type": "object", "properties": {}, "required": [], "additionalProperties": false}}
+{"name": "search_recipes", "description": "Search recipes by name (case-insensitive substring).", "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Text that must appear in the recipe name."}}, "required": ["query"], "additionalProperties": false}}
+{"name": "get_recipe", "description": "One recipe: grams of each ingredient per portion and its allergens.", "parameters": {"type": "object", "properties": {"recipe_id": {"type": "string", "description": "Recipe id, e.g. RC-01."}}, "required": ["recipe_id"], "additionalProperties": false}}
+{"name": "find_ingredients", "description": "Search ingredients by name (case-insensitive substring).", "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Text that must appear in the ingredient name."}}, "required": ["query"], "additionalProperties": false}}
+{"name": "list_lots", "description": "Stock lots, filtered, earliest expiry first; 8 per page. 'free' is the quantity not yet allocated to planned batches.", "parameters": {"type": "object", "properties": {"ingredient_id": {"type": "string", "description": "Only lots of this ingredient, e.g. ING-01."}, "status": {"type": "string", "description": "Only lots in this status.", "enum": ["available", "quarantined"]}, "expires_before": {"type": "string", "description": "Only lots expiring before this date, YYYY-MM-DD."}, "page": {"type": "integer", "description": "Page number, starting at 1 (default 1).", "minimum": 1}}, "required": [], "additionalProperties": false}}
+{"name": "list_batches", "description": "Production batches, filtered, by date, line and id; 8 per page.", "parameters": {"type": "object", "properties": {"date": {"type": "string", "description": "Only this production date, YYYY-MM-DD."}, "line": {"type": "string", "description": "Only this line.", "enum": ["L1", "L2", "L3"]}, "recipe_id": {"type": "string", "description": "Only batches of this recipe."}, "status": {"type": "string", "description": "Only this status.", "enum": ["planned", "released", "cancelled"]}, "page": {"type": "integer", "description": "Page number, starting at 1 (default 1).", "minimum": 1}}, "required": [], "additionalProperties": false}}
+{"name": "get_batch", "description": "One batch: recipe, portions, date, line, status, and per ingredient the grams needed, allocated (by lot) and still missing.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id, e.g. PB-801."}}, "required": ["batch_id"], "additionalProperties": false}}
+{"name": "create_batch", "description": "Plan a new production batch (status planned, nothing allocated).", "parameters": {"type": "object", "properties": {"recipe_id": {"type": "string", "description": "Recipe id."}, "portions": {"type": "integer", "description": "Number of portions.", "minimum": 1}, "date": {"type": "string", "description": "Production date, YYYY-MM-DD."}, "line": {"type": "string", "description": "Production line.", "enum": ["L1", "L2", "L3"]}}, "required": ["recipe_id", "portions", "date", "line"], "additionalProperties": false}}
+{"name": "update_batch", "description": "Change the portions and/or line of a planned batch.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}, "portions": {"type": "integer", "description": "New number of portions.", "minimum": 1}, "line": {"type": "string", "description": "New production line.", "enum": ["L1", "L2", "L3"]}}, "required": ["batch_id"], "additionalProperties": false}}
+{"name": "cancel_batch", "description": "Cancel a planned batch; its allocations are released back to stock.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}}, "required": ["batch_id"], "additionalProperties": false}}
+{"name": "allocate_lot", "description": "Allocate grams from a stock lot to a planned batch.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}, "lot_id": {"type": "string", "description": "Lot id, e.g. LOT-0103."}, "grams": {"type": "integer", "description": "Grams to allocate.", "minimum": 1}}, "required": ["batch_id", "lot_id", "grams"], "additionalProperties": false}}
+{"name": "deallocate_lot", "description": "Remove the whole allocation of one lot from a planned batch.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}, "lot_id": {"type": "string", "description": "Lot id."}}, "required": ["batch_id", "lot_id"], "additionalProperties": false}}
+{"name": "release_batch", "description": "Release a fully allocated planned batch to production (its allocated stock is consumed).", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}}, "required": ["batch_id"], "additionalProperties": false}}
+{"name": "quarantine_lot", "description": "Quarantine a stock lot so it can no longer be used.", "parameters": {"type": "object", "properties": {"lot_id": {"type": "string", "description": "Lot id."}, "reason": {"type": "string", "description": "Reason.", "enum": ["recall", "expired", "damaged"]}}, "required": ["lot_id", "reason"], "additionalProperties": false}}
+
+Here's an example of how to call a function in the tool set:
+(If the tool namespace is not specified, invoke the function directly as `example_function_name` rather than `example_tool_name.example_function_name`)
+
+to=example_tool_name.example_function_name
+
+<atem:function_calls>
+<atem:invoke name="example_tool_name.example_function_name">
+<atem:parameter name="example_parameter_1">value_1</atem:parameter>
+<atem:parameter name="example_parameter_2">This is the value for the second parameter
+that can span
+"multiple" lines
+</atem:parameter>
+</atem:invoke>
+</atem:function_calls>
+
+# Valid recipients: "self", "get_kitchen_info.*", "search_recipes.*", "get_recipe.*", "find_ingredients.*", "list_lots.*", "list_batches.*", "get_batch.*", "create_batch.*", "update_batch.*", "cancel_batch.*", "allocate_lot.*", "deallocate_lot.*", "release_batch.*", "quarantine_lot.*", "user".<|eot|><|start|>user<|message|>We need Thai Green Curry with Tofu for the vegan boxes on Tuesday 24 November: plan as many portions as possible, up to 200, on whichever production line has the most room that day, limited by that room and by the usable stock of every ingredient. Allocate all of its ingredients following the stock rules and release it to production. Don't change any other batch.<|eot|><|start|>assistant to=self<|message|>We need Thai Green Curry with Tofu for vegan boxes on Tuesday 24 November: plan as many portions as possible, up to 200, on whichever production line has the most room that day, limited by that room and by usable stock of every ingredient. Allocate all ingredients following stock rules and release it to production. Don't change any other batch.
+
+We need to use tools. First get kitchen info to know date, production lines daily capacity, nut-free flag, planning and stock rules.
+
+Then search recipes for Thai Green Curry with Tofu. Find recipe_id.
+
+Then get recipe details: grams per portion, allergens.
+
+Then need to know production lines capacities on 24 Nov, and existing batches planned for that day to compute room.
+
+We need to find usable stock of each ingredient. Need to list lots for each ingredient. Stock rules: probably FIFO earliest expiry first, free quantity not yet allocated. Also need to follow planning rules.
+
+We need to pick production line with most room that day. Room = daily capacity - sum portions of existing planned batches? Or maybe released? Let's get kitchen info.
+
+Also need to ensure recipe is vegan? It says for vegan boxes. Probably ensure allergens? Might need nut-free? Not sure.
+
+Let's start with get_kitchen_info.<|eom|><|start|>assistant to=get_kitchen_info<|message|><atem:function_calls>
+<atem:invoke name="get_kitchen_info">
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool get_kitchen_info<|message|><tool_output name="get_kitchen_info">
+{"today": "2026-11-23", "lines": [{"line": "L1", "name": "Line 1", "capacity": 400, "nut_free": false}, {"line": "L2", "name": "Line 2", "capacity": 300, "nut_free": false}, {"line": "L3", "name": "Line 3", "capacity": 250, "nut_free": true}], "rules": ["Batches can only be planned for today or later. The portions of all planned and released batches on a line on one day may not exceed the line's capacity.", "Nut-free lines may not run recipes containing peanut or tree_nut. Coconut is not classed as a tree nut. Sesame is not a nut.", "Only available (not quarantined) lots may be allocated, and only to a batch whose date is on or before the lot's expiry date.", "First-expiry-first-out: for each ingredient, a batch must take stock from the earliest-expiring lot that it may use and that still has free stock (ties: lower lot id) before any later lot.", "A batch may never be allocated more of an ingredient than it needs (portions x grams per portion). Reducing portions is only possible while allocations still fit the new need.", "A batch can be released only when every ingredient is allocated exactly. Released batches cannot be changed, cancelled or re-allocated.", "A lot cannot be quarantined while it is allocated to a planned batch; take the allocation off first."]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Today is 2026-11-23. Tuesday 24 November would be 2026-11-24. Good.
+
+Lines:
+L1 capacity 400 nut_free false
+L2 capacity 300 nut_free false
+L3 capacity 250 nut_free true
+
+Rules:
+Batches can only be planned for today or later. Portions of all planned and released batches on a line on one day may not exceed line capacity.
+Nut-free lines may not run recipes containing peanut or tree_nut.
+Only available lots may be allocated, and only to batch whose date is on or before lot expiry.
+First-expiry-first-out: for each ingredient, batch must take stock from earliest-expiring lot that it may use and that still has free stock (ties lower lot id) before any later lot.
+Batch may never be allocated more than it needs.
+Batch can be released only when every ingredient allocated exactly.
+Lot cannot be quarantined while allocated.
+
+We need Thai Green Curry with Tofu. Search recipes.<|eom|><|start|>assistant to=search_recipes<|message|><atem:function_calls>
+<atem:invoke name="search_recipes">
+<atem:parameter name="query">Thai Green Curry</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool search_recipes<|message|><tool_output name="search_recipes">
+{"recipes": [{"recipe_id": "RC-01", "name": "Thai Green Curry", "status": "active", "allergens": ["crustacean"]}, {"recipe_id": "RC-02", "name": "Thai Green Curry with Tofu", "status": "active", "allergens": ["crustacean", "soy"]}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Recipe RC-02 is Thai Green Curry with Tofu. Allergens: crustacean, soy. No nuts? Probably okay for nut-free line? Nut-free line L3 prohibits peanut or tree_nut. Allergens are crustacean, soy, so okay. But is recipe vegan? It contains tofu, soy, crustacean allergen? Maybe contains shrimp paste. Hmm vegan boxes? The user says for vegan boxes. Maybe recipe contains crustacean allergen but is it vegan? Might be okay? Maybe we just follow request.
+
+Now get recipe details.<|eom|><|start|>assistant to=get_recipe<|message|><atem:function_calls>
+<atem:invoke name="get_recipe">
+<atem:parameter name="recipe_id">RC-02</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool get_recipe<|message|><tool_output name="get_recipe">
+{"recipe_id": "RC-02", "name": "Thai Green Curry with Tofu", "status": "active", "allergens": ["crustacean", "soy"], "per_portion": [{"ingredient_id": "ING-02", "ingredient": "Coconut milk", "grams": 100}, {"ingredient_id": "ING-03", "ingredient": "Green curry paste", "grams": 20}, {"ingredient_id": "ING-04", "ingredient": "Jasmine rice", "grams": 90}, {"ingredient_id": "ING-21", "ingredient": "Firm tofu", "grams": 120}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Ingredients:
+ING-02 Coconut milk 100g per portion
+ING-03 Green curry paste 20g
+ING-04 Jasmine rice 90g
+ING-21 Firm tofu 120g
+
+Now need to determine room per line on 2026-11-24.
+
+We need list batches for date 2026-11-24 for each line. Let's list batches for date.<|eom|><|start|>assistant to=list_batches<|message|><atem:function_calls>
+<atem:invoke name="list_batches">
+<atem:parameter name="date">2026-11-24</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool list_batches<|message|><tool_output name="list_batches">
+{"page": 1, "pages": 1, "total_results": 6, "batches": [{"batch_id": "PB-820", "recipe_id": "RC-01", "recipe": "Thai Green Curry", "portions": 200, "date": "2026-11-24", "line": "L1", "status": "planned", "fully_allocated": false}, {"batch_id": "PB-821", "recipe_id": "RC-12", "recipe": "Chicken Fajita Bowl", "portions": 100, "date": "2026-11-24", "line": "L1", "status": "planned", "fully_allocated": false}, {"batch_id": "PB-822", "recipe_id": "RC-08", "recipe": "Lentil Dal", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": false}, {"batch_id": "PB-810", "recipe_id": "RC-03", "recipe": "Satay Chicken", "portions": 100, "date": "2026-11-24", "line": "L3", "status": "planned", "fully_allocated": false}, {"batch_id": "PB-813", "recipe_id": "RC-14", "recipe": "Almond Granola Pot", "portions": 60, "date": "2026-11-24", "line": "L3", "status": "released", "fully_allocated": false}, {"batch_id": "PB-814", "recipe_id": "RC-15", "recipe": "Sesame Noodles", "portions": 70, "date": "2026-11-24", "line": "L3", "status": "planned", "fully_allocated": false}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>We have batches:
+L1:
+PB-820 200 portions RC-01 planned
+PB-821 100 portions RC-12 planned
+Total planned = 300. Released? None listed for L1. Capacity 400. Room = 100.
+
+L2:
+PB-822 150 portions RC-08 planned
+Capacity 300. Room = 150.
+
+L3:
+PB-810 100 portions RC-03 planned
+PB-813 60 portions RC-14 released
+PB-814 70 portions RC-15 planned
+Total = 100+60+70=230. Capacity 250. Room =20.
+
+But note rule: portions of all planned and released batches on a line on one day may not exceed capacity. So room calculation correct.
+
+Most room is L2 with 150 room. Next L1 100, L3 20.
+
+We need up to 200 portions, but limited by room and usable stock. So max possible on L2 is 150 portions (room). On L1 is 100, L3 20. Most room is L2 with 150.
+
+We need to plan as many portions as possible up to 200 on whichever line has most room. So line L2 with max 150 room. But also limited by usable stock of every ingredient.
+
+We need to compute maximum portions limited by stock.
+
+We have 4 ingredients. Need to find available lots for each ingredient, with expiry >= 2026-11-24? Actually lot expiry date must be on or after batch date? Rule: only to a batch whose date is on or before the lot's expiry date. So expiry >= batch date. Also lots must be available (not quarantined). Need free quantity not yet allocated.
+
+We need to find lots for ING-02, ING-03, ING-04, ING-21.
+
+List lots for each ingredient.<|eom|><|start|>assistant to=list_lots<|message|><atem:function_calls>
+<atem:invoke name="list_lots">
+<atem:parameter name="ingredient_id">ING-02</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool list_lots<|message|><tool_output name="list_lots">
+{"page": 1, "pages": 1, "total_results": 2, "lots": [{"lot_id": "LOT-0201", "ingredient_id": "ING-02", "ingredient": "Coconut milk", "qty": 8000, "free": 8000, "expires": "2026-12-20", "supplier": "Kara Foods", "status": "quarantined", "reason": "damaged", "allocated_to": {}}, {"lot_id": "LOT-0202", "ingredient_id": "ING-02", "ingredient": "Coconut milk", "qty": 20000, "free": 20000, "expires": "2027-02-01", "supplier": "Kara Foods", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>LOT-0201 quarantined, not usable. LOT-0202 available 20,000 free, expires 2027-02-01 > batch date. Good.
+
+ING-03<|eom|><|start|>assistant to=list_lots<|message|><atem:function_calls>
+<atem:invoke name="list_lots">
+<atem:parameter name="ingredient_id">ING-03</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool list_lots<|message|><tool_output name="list_lots">
+{"page": 1, "pages": 1, "total_results": 1, "lots": [{"lot_id": "LOT-0301", "ingredient_id": "ING-03", "ingredient": "Green curry paste", "qty": 5000, "free": 5000, "expires": "2027-01-31", "supplier": "Bangkok Pantry", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>ING-04<|eom|><|start|>assistant to=list_lots<|message|><atem:function_calls>
+<atem:invoke name="list_lots">
+<atem:parameter name="ingredient_id">ING-04</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool list_lots<|message|><tool_output name="list_lots">
+{"page": 1, "pages": 1, "total_results": 3, "lots": [{"lot_id": "LOT-0402", "ingredient_id": "ING-04", "ingredient": "Jasmine rice", "qty": 9000, "free": 9000, "expires": "2026-11-10", "supplier": "Riceland", "status": "quarantined", "reason": "expired", "allocated_to": {}}, {"lot_id": "LOT-0401", "ingredient_id": "ING-04", "ingredient": "Jasmine rice", "qty": 6000, "free": 5000, "expires": "2026-11-26", "supplier": "Riceland", "status": "available", "reason": "", "allocated_to": {"PB-821": 1000}}, {"lot_id": "LOT-0403", "ingredient_id": "ING-04", "ingredient": "Jasmine rice", "qty": 60000, "free": 60000, "expires": "2027-06-30", "supplier": "Riceland", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>LOT-0402 quarantined expired. LOT-0401 available but expires 2026-11-26, which is after batch date 2026-11-24, so usable. Free 5000g. Also allocated 1000 to PB-821. Total qty 6000. LOT-0403 available 60,000 free expires 2027-06-30.
+
+ING-21<|eom|><|start|>assistant to=list_lots<|message|><atem:function_calls>
+<atem:invoke name="list_lots">
+<atem:parameter name="ingredient_id">ING-21</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool list_lots<|message|><tool_output name="list_lots">
+{"page": 1, "pages": 1, "total_results": 1, "lots": [{"lot_id": "LOT-2101", "ingredient_id": "ING-21", "ingredient": "Firm tofu", "qty": 20000, "free": 20000, "expires": "2026-12-03", "supplier": "Kara Foods", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Now compute max portions based on stock.
+
+Coconut milk: 20,000 free / 100g per portion = 200 portions.
+
+Green curry paste: 5,000 /20 =250 portions.
+
+Jasmine rice: free total = 5,000 +60,000 =65,000. /90 =722 portions.
+
+Firm tofu:20,000/120=166 portions (166*120=19,920, remainder 80). So limiting factor is tofu at 166 portions.
+
+But also need to consider FEFO allocation rules. For jasmine rice, earliest expiring lot is LOT-0401 expires 2026-11-26, then LOT-0403 expires 2027-06-30. So we must use earliest first. That's fine.
+
+Also need to consider that existing batches may have allocations that consume stock, but we have free quantities. Free is quantity not yet allocated. So okay.
+
+So stock limits to 166 portions for tofu.
+
+Room limit for L2 is 150 portions. So max portions = min(150 room, 166 stock, 200 cap) =150.
+
+But also need to ensure we can allocate according to FEFO for each ingredient. For coconut milk only one lot. For green curry paste one lot. For tofu one lot. For rice two lots. Need to ensure we have enough free stock in earliest lots to satisfy allocation. Since we only need 150 portions:
+
+Coconut milk needed 15,000g <=20,000 OK
+Green curry paste needed 3,000g <=5,000 OK
+Jasmine rice needed 13,500g. Earliest lot LOT-0401 has free 5,000g. So we will allocate 5,000g from LOT-0401 (earliest). That's 55 portions worth (5,000/90=55 remainder). Remaining 8,500g from LOT-0403. That's okay. FEFO satisfied.
+
+Tofu needed 18,000g <=20,000 OK.
+
+So max portions =150 on L2.
+
+But wait, also need to check if L2 has nut-free restrictions? Recipe allergens crustacean, soy. No nuts. So okay on L2 (nut-free false, but not nut-free line). Actually L2 is not nut-free, so fine.
+
+Also need to ensure we don't exceed capacity with planned and released batches. L2 currently has PB-822 150 planned. Capacity 300. So adding 150 =300 exactly. Good.
+
+Now need to plan batch: create_batch with recipe_id RC-02, portions 150, date 2026-11-24, line L2.
+
+Then allocate all ingredients following stock rules. Need to allocate grams per ingredient: total needed = portions * grams per portion.
+
+Coconut milk: 150*100=15,000g from LOT-0202.
+Green curry paste: 150*20=3,000g from LOT-0301.
+Jasmine rice: 150*90=13,500g. Need to allocate FEFO: first LOT-0401 free 5,000g, then remaining 8,500g from LOT-0403.
+Firm tofu: 150*120=18,000g from LOT-2101.
+
+We need to allocate via allocate_lot calls. Each allocate_lot allocates grams from a lot to batch. Can we allocate partial? Yes. Must follow FEFO: for each ingredient, must take from earliest-expiring lot that it may use and still has free stock before any later lot. So for rice, we must allocate from LOT-0401 first up to its free 5,000, then LOT-0403.
+
+The allocate_lot tool allocates grams from a lot to a batch. We can do multiple allocations per ingredient from different lots.
+
+After allocation, we need to release batch. Release requires fully allocated.
+
+Steps:
+
+1. create_batch -> returns batch_id.
+2. allocate_lot for each ingredient/lot.
+
+Potential issue: allocate_lot may need exact grams? We can allocate in one call per lot. For rice, we need two calls.
+
+Also need to ensure we don't allocate more than needed. Sum allocations per ingredient must equal needed.
+
+Also need to ensure we allocate exactly needed, no over allocation.
+
+Let's create batch first.<|eom|><|start|>assistant to=create_batch<|message|><atem:function_calls>
+<atem:invoke name="create_batch">
+<atem:parameter name="recipe_id">RC-02</atem:parameter>
+<atem:parameter name="portions">150</atem:parameter>
+<atem:parameter name="date">2026-11-24</atem:parameter>
+<atem:parameter name="line">L2</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool create_batch<|message|><tool_output name="create_batch">
+{"ok": true, "batch": {"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": false}}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Batch created PB-900.
+
+Now allocate.
+
+First coconut milk LOT-0202 15,000g.<|eom|><|start|>assistant to=allocate_lot<|message|><atem:function_calls>
+<atem:invoke name="allocate_lot">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+<atem:parameter name="lot_id">LOT-0202</atem:parameter>
+<atem:parameter name="grams">15000</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool allocate_lot<|message|><tool_output name="allocate_lot">
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0202", "allocated_from_lot": 15000, "ingredient_missing_now": 0}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Now green curry paste LOT-0301 3,000g.<|eom|><|start|>assistant to=allocate_lot<|message|><atem:function_calls>
+<atem:invoke name="allocate_lot">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+<atem:parameter name="lot_id">LOT-0301</atem:parameter>
+<atem:parameter name="grams">3000</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool allocate_lot<|message|><tool_output name="allocate_lot">
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0301", "allocated_from_lot": 3000, "ingredient_missing_now": 0}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Now jasmine rice. First allocate from LOT-0401 up to free 5,000g. Need total 13,500g. So allocate 5,000g.<|eom|><|start|>assistant to=allocate_lot<|message|><atem:function_calls>
+<atem:invoke name="allocate_lot">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+<atem:parameter name="lot_id">LOT-0401</atem:parameter>
+<atem:parameter name="grams">5000</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool allocate_lot<|message|><tool_output name="allocate_lot">
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0401", "allocated_from_lot": 5000, "ingredient_missing_now": 8500}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Missing now 8,500g. Allocate remaining from LOT-0403.<|eom|><|start|>assistant to=allocate_lot<|message|><atem:function_calls>
+<atem:invoke name="allocate_lot">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+<atem:parameter name="lot_id">LOT-0403</atem:parameter>
+<atem:parameter name="grams">8500</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool allocate_lot<|message|><tool_output name="allocate_lot">
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0403", "allocated_from_lot": 8500, "ingredient_missing_now": 0}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Now firm tofu LOT-2101 18,000g.<|eom|><|start|>assistant to=allocate_lot<|message|><atem:function_calls>
+<atem:invoke name="allocate_lot">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+<atem:parameter name="lot_id">LOT-2101</atem:parameter>
+<atem:parameter name="grams">18000</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool allocate_lot<|message|><tool_output name="allocate_lot">
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-2101", "allocated_from_lot": 18000, "ingredient_missing_now": 0}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Now all ingredients allocated. Let's verify batch status.<|eom|><|start|>assistant to=get_batch<|message|><atem:function_calls>
+<atem:invoke name="get_batch">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool get_batch<|message|><tool_output name="get_batch">
+{"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": true, "ingredients": [{"ingredient_id": "ING-02", "ingredient": "Coconut milk", "needed": 15000, "allocated": 15000, "missing": 0, "lots": {"LOT-0202": 15000}}, {"ingredient_id": "ING-03", "ingredient": "Green curry paste", "needed": 3000, "allocated": 3000, "missing": 0, "lots": {"LOT-0301": 3000}}, {"ingredient_id": "ING-04", "ingredient": "Jasmine rice", "needed": 13500, "allocated": 13500, "missing": 0, "lots": {"LOT-0401": 5000, "LOT-0403": 8500}}, {"ingredient_id": "ING-21", "ingredient": "Firm tofu", "needed": 18000, "allocated": 18000, "missing": 0, "lots": {"LOT-2101": 18000}}], "allergens": ["crustacean", "soy"]}
+</tool_output><|eot|><|start|>assistant to=self<|message|>Fully allocated true. Now release batch.<|eom|><|start|>assistant to=release_batch<|message|><atem:function_calls>
+<atem:invoke name="release_batch">
+<atem:parameter name="batch_id">PB-900</atem:parameter>
+</atem:invoke>
+</atem:function_calls><|eot|><|start|>tool release_batch<|message|><tool_output name="release_batch">
+{"ok": true, "batch": {"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "released", "fully_allocated": true}}
+</tool_output><|eot|><|start|>assistant

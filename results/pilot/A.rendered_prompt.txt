@@ -1,0 +1,523 @@
+<|im_start|>system
+# Tools
+
+You have access to the following functions:
+
+<tools>
+{"type": "function", "function": {"name": "get_kitchen_info", "description": "Today's date, the production lines (daily capacity in portions, nut-free flag) and the planning and stock rules that the write tools enforce.", "parameters": {"type": "object", "properties": {}, "required": [], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "search_recipes", "description": "Search recipes by name (case-insensitive substring).", "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Text that must appear in the recipe name."}}, "required": ["query"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "get_recipe", "description": "One recipe: grams of each ingredient per portion and its allergens.", "parameters": {"type": "object", "properties": {"recipe_id": {"type": "string", "description": "Recipe id, e.g. RC-01."}}, "required": ["recipe_id"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "find_ingredients", "description": "Search ingredients by name (case-insensitive substring).", "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Text that must appear in the ingredient name."}}, "required": ["query"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "list_lots", "description": "Stock lots, filtered, earliest expiry first; 8 per page. 'free' is the quantity not yet allocated to planned batches.", "parameters": {"type": "object", "properties": {"ingredient_id": {"type": "string", "description": "Only lots of this ingredient, e.g. ING-01."}, "status": {"type": "string", "description": "Only lots in this status.", "enum": ["available", "quarantined"]}, "expires_before": {"type": "string", "description": "Only lots expiring before this date, YYYY-MM-DD."}, "page": {"type": "integer", "description": "Page number, starting at 1 (default 1).", "minimum": 1}}, "required": [], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "list_batches", "description": "Production batches, filtered, by date, line and id; 8 per page.", "parameters": {"type": "object", "properties": {"date": {"type": "string", "description": "Only this production date, YYYY-MM-DD."}, "line": {"type": "string", "description": "Only this line.", "enum": ["L1", "L2", "L3"]}, "recipe_id": {"type": "string", "description": "Only batches of this recipe."}, "status": {"type": "string", "description": "Only this status.", "enum": ["planned", "released", "cancelled"]}, "page": {"type": "integer", "description": "Page number, starting at 1 (default 1).", "minimum": 1}}, "required": [], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "get_batch", "description": "One batch: recipe, portions, date, line, status, and per ingredient the grams needed, allocated (by lot) and still missing.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id, e.g. PB-801."}}, "required": ["batch_id"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "create_batch", "description": "Plan a new production batch (status planned, nothing allocated).", "parameters": {"type": "object", "properties": {"recipe_id": {"type": "string", "description": "Recipe id."}, "portions": {"type": "integer", "description": "Number of portions.", "minimum": 1}, "date": {"type": "string", "description": "Production date, YYYY-MM-DD."}, "line": {"type": "string", "description": "Production line.", "enum": ["L1", "L2", "L3"]}}, "required": ["recipe_id", "portions", "date", "line"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "update_batch", "description": "Change the portions and/or line of a planned batch.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}, "portions": {"type": "integer", "description": "New number of portions.", "minimum": 1}, "line": {"type": "string", "description": "New production line.", "enum": ["L1", "L2", "L3"]}}, "required": ["batch_id"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "cancel_batch", "description": "Cancel a planned batch; its allocations are released back to stock.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}}, "required": ["batch_id"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "allocate_lot", "description": "Allocate grams from a stock lot to a planned batch.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}, "lot_id": {"type": "string", "description": "Lot id, e.g. LOT-0103."}, "grams": {"type": "integer", "description": "Grams to allocate.", "minimum": 1}}, "required": ["batch_id", "lot_id", "grams"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "deallocate_lot", "description": "Remove the whole allocation of one lot from a planned batch.", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}, "lot_id": {"type": "string", "description": "Lot id."}}, "required": ["batch_id", "lot_id"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "release_batch", "description": "Release a fully allocated planned batch to production (its allocated stock is consumed).", "parameters": {"type": "object", "properties": {"batch_id": {"type": "string", "description": "Batch id."}}, "required": ["batch_id"], "additionalProperties": false}}}
+{"type": "function", "function": {"name": "quarantine_lot", "description": "Quarantine a stock lot so it can no longer be used.", "parameters": {"type": "object", "properties": {"lot_id": {"type": "string", "description": "Lot id."}, "reason": {"type": "string", "description": "Reason.", "enum": ["recall", "expired", "damaged"]}}, "required": ["lot_id", "reason"], "additionalProperties": false}}}
+</tools>
+
+If you choose to call a function ONLY reply in the following format with NO suffix:
+
+<tool_call>
+<function=example_function_name>
+<parameter=example_parameter_1>
+value_1
+</parameter>
+<parameter=example_parameter_2>
+This is the value for the second parameter
+that can span
+multiple lines
+</parameter>
+</function>
+</tool_call>
+
+<IMPORTANT>
+Reminder:
+- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags
+- Required parameters MUST be specified
+- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after
+- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls
+</IMPORTANT>
+
+You are a helpful assistant<|im_end|>
+<|im_start|>user
+We need Thai Green Curry with Tofu for the vegan boxes on Tuesday 24 November: plan as many portions as possible, up to 200, on whichever production line has the most room that day, limited by that room and by the usable stock of every ingredient. Allocate all of its ingredients following the stock rules and release it to production. Don't change any other batch.<|im_end|>
+<|im_start|>assistant
+<think>
+The user wants me to:
+1. Find a recipe for "Thai Green Curry with Tofu"
+2. Plan as many portions as possible (up to 200) on Tuesday 24 November
+3. Use the production line with the most room that day
+4. Allocate all ingredients following stock rules
+5. Release the batch to production
+6. Don't change any other batch
+
+Let me start by getting today's kitchen info to understand the current date, production lines, and rules. Then I'll search for the recipe.
+
+First, let me get the kitchen info.
+</think>
+
+<tool_call>
+<function=get_kitchen_info>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"today": "2026-11-23", "lines": [{"line": "L1", "name": "Line 1", "capacity": 400, "nut_free": false}, {"line": "L2", "name": "Line 2", "capacity": 300, "nut_free": false}, {"line": "L3", "name": "Line 3", "capacity": 250, "nut_free": true}], "rules": ["Batches can only be planned for today or later. The portions of all planned and released batches on a line on one day may not exceed the line's capacity.", "Nut-free lines may not run recipes containing peanut or tree_nut. Coconut is not classed as a tree nut. Sesame is not a nut.", "Only available (not quarantined) lots may be allocated, and only to a batch whose date is on or before the lot's expiry date.", "First-expiry-first-out: for each ingredient, a batch must take stock from the earliest-expiring lot that it may use and that still has free stock (ties: lower lot id) before any later lot.", "A batch may never be allocated more of an ingredient than it needs (portions x grams per portion). Reducing portions is only possible while allocations still fit the new need.", "A batch can be released only when every ingredient is allocated exactly. Released batches cannot be changed, cancelled or re-allocated.", "A lot cannot be quarantined while it is allocated to a planned batch; take the allocation off first."]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Good, today is 2026-11-23, so Tuesday 24 November would be 2026-11-24.
+
+Now let me search for the recipe "Thai Green Curry with Tofu".
+</think>
+
+<tool_call>
+<function=search_recipes>
+<parameter=query>
+Thai Green Curry with Tofu
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"recipes": [{"recipe_id": "RC-02", "name": "Thai Green Curry with Tofu", "status": "active", "allergens": ["crustacean", "soy"]}]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Good, I found the recipe RC-02. Now let me get the recipe details to see the ingredients and their grams per portion.
+</think>
+
+<tool_call>
+<function=get_recipe>
+<parameter=recipe_id>
+RC-02
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"recipe_id": "RC-02", "name": "Thai Green Curry with Tofu", "status": "active", "allergens": ["crustacean", "soy"], "per_portion": [{"ingredient_id": "ING-02", "ingredient": "Coconut milk", "grams": 100}, {"ingredient_id": "ING-03", "ingredient": "Green curry paste", "grams": 20}, {"ingredient_id": "ING-04", "ingredient": "Jasmine rice", "grams": 90}, {"ingredient_id": "ING-21", "ingredient": "Firm tofu", "grams": 120}]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Good, so the recipe RC-02 (Thai Green Curry with Tofu) requires per portion:
+- ING-02 (Coconut milk): 100g
+- ING-03 (Green curry paste): 20g
+- ING-04 (Jasmine rice): 90g
+- ING-21 (Firm tofu): 120g
+
+Now I need to check the stock for each of these ingredients. Let me list lots for each ingredient to see what's available. But first, let me check what batches are already planned/released for Tuesday 24 November (2026-11-24) on each line to understand the capacity usage.
+
+Actually, I need to figure out which line has the most room on 2026-11-24. Let me check all batches for that date on each line.
+</think>
+
+<tool_call>
+<function=list_batches>
+<parameter=date>
+2026-11-24
+</parameter>
+<parameter=line>
+L1
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=list_batches>
+<parameter=date>
+2026-11-24
+</parameter>
+<parameter=line>
+L2
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=list_batches>
+<parameter=date>
+2026-11-24
+</parameter>
+<parameter=line>
+L3
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 2, "batches": [{"batch_id": "PB-820", "recipe_id": "RC-01", "recipe": "Thai Green Curry", "portions": 200, "date": "2026-11-24", "line": "L1", "status": "planned", "fully_allocated": false}, {"batch_id": "PB-821", "recipe_id": "RC-12", "recipe": "Chicken Fajita Bowl", "portions": 100, "date": "2026-11-24", "line": "L1", "status": "planned", "fully_allocated": false}]}
+</tool_response>
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 1, "batches": [{"batch_id": "PB-822", "recipe_id": "RC-08", "recipe": "Lentil Dal", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": false}]}
+</tool_response>
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 3, "batches": [{"batch_id": "PB-810", "recipe_id": "RC-03", "recipe": "Satay Chicken", "portions": 100, "date": "2026-11-24", "line": "L3", "status": "planned", "fully_allocated": false}, {"batch_id": "PB-813", "recipe_id": "RC-14", "recipe": "Almond Granola Pot", "portions": 60, "date": "2026-11-24", "line": "L3", "status": "released", "fully_allocated": false}, {"batch_id": "PB-814", "recipe_id": "RC-15", "recipe": "Sesame Noodles", "portions": 70, "date": "2026-11-24", "line": "L3", "status": "planned", "fully_allocated": false}]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Wait, I notice that PB-813 has status "released" but it shows "fully_allocated": false. That seems odd - released batches should be fully allocated. Let me continue with the analysis.
+
+Now let me calculate the capacity usage for each line:
+- L1: Capacity 400. Already has PB-820 (200 portions) and PB-821 (100 portions) = 300 portions used. So 100 portions remaining.
+- L2: Capacity 300. Already has PB-822 (150 portions). So 150 portions remaining.
+- L3: Capacity 250. Already has PB-810 (100 portions), PB-813 (60 portions - released), and PB-814 (70 portions) = 230 portions used. So 20 portions remaining.
+
+Wait, but I need to be careful. The rule says "The portions of all planned and released batches on a line on one day may not exceed the line's capacity." So for L3, we have:
+- PB-810: 100 portions (planned)
+- PB-813: 60 portions (released) - this counts
+- PB-814: 70 portions (planned)
+Total: 230 portions. Capacity is 250, so 20 portions remaining.
+
+For L1:
+- PB-820: 200 portions (planned)
+- PB-821: 100 portions (planned)
+Total: 300 portions. Capacity is 400, so 100 portions remaining.
+
+For L2:
+- PB-822: 150 portions (planned)
+Total: 150 portions. Capacity is 300, so 150 portions remaining.
+
+So L2 has the most room with 150 portions available. But wait, we're planning a maximum of 200 portions, limited by stock and line capacity. So on L2, we could plan up to 150 portions (limited by line capacity). On L1, up to 100 portions. On L3, up to 20 portions.
+
+So the line with the most room is L2 with 150 portions available. But we also need to check stock limitations.
+
+However, I notice that RC-02 (Thai Green Curry with Tofu) has allergens ["crustacean", "soy"]. Let me check if any of these are nuts... Actually crustacean and soy are not nuts (peanut or tree_nut), so it should be fine for all lines including L3 (nut-free). Wait, let me re-read the rule: "Nut-free lines may not run recipes containing peanut or tree_nut." So crustacean and soy are fine for L3.
+
+But actually, looking at the recipe again, it doesn't have coconut milk listed as an allergen - wait no, the recipe shows allergens as ["crustacean", "soy"]. Coconut is not a nut according to the rules. So RC-02 can be run on any line.
+
+Now, let me check the stock for each ingredient. I need to find all available lots for ING-02, ING-03, ING-04, and ING-21.
+
+But wait - I also notice that PB-820 is a Thai Green Curry (RC-01) on L1 with 200 portions. That's a different recipe from RC-02 (Thai Green Curry with Tofu). Let me make sure I'm using the right recipe. The user asked for "Thai Green Curry with Tofu" which is RC-02.
+
+Now let me check stock for each ingredient. I'll start by listing lots for each ingredient that are available.
+</think>
+
+<tool_call>
+<function=list_lots>
+<parameter=ingredient_id>
+ING-02
+</parameter>
+<parameter=status>
+available
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=list_lots>
+<parameter=ingredient_id>
+ING-03
+</parameter>
+<parameter=status>
+available
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=list_lots>
+<parameter=ingredient_id>
+ING-04
+</parameter>
+<parameter=status>
+available
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=list_lots>
+<parameter=ingredient_id>
+ING-21
+</parameter>
+<parameter=status>
+available
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 1, "lots": [{"lot_id": "LOT-0202", "ingredient_id": "ING-02", "ingredient": "Coconut milk", "qty": 20000, "free": 20000, "expires": "2027-02-01", "supplier": "Kara Foods", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_response>
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 1, "lots": [{"lot_id": "LOT-0301", "ingredient_id": "ING-03", "ingredient": "Green curry paste", "qty": 5000, "free": 5000, "expires": "2027-01-31", "supplier": "Bangkok Pantry", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_response>
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 2, "lots": [{"lot_id": "LOT-0401", "ingredient_id": "ING-04", "ingredient": "Jasmine rice", "qty": 6000, "free": 5000, "expires": "2026-11-26", "supplier": "Riceland", "status": "available", "reason": "", "allocated_to": {"PB-821": 1000}}, {"lot_id": "LOT-0403", "ingredient_id": "ING-04", "ingredient": "Jasmine rice", "qty": 60000, "free": 60000, "expires": "2027-06-30", "supplier": "Riceland", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_response>
+<tool_response>
+{"page": 1, "pages": 1, "total_results": 1, "lots": [{"lot_id": "LOT-2101", "ingredient_id": "ING-21", "ingredient": "Firm tofu", "qty": 20000, "free": 20000, "expires": "2026-12-03", "supplier": "Kara Foods", "status": "available", "reason": "", "allocated_to": {}}]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Good, now I have the stock information:
+- ING-02 (Coconut milk): LOT-0202 has 20000g free. Per portion needs 100g. Max portions from this: 20000/100 = 200 portions.
+- ING-03 (Green curry paste): LOT-0301 has 5000g free. Per portion needs 20g. Max portions from this: 5000/20 = 250 portions.
+- ING-04 (Jasmine rice): 
+  - LOT-0401 has 5000g free (already allocated 1000 to PB-821). Per portion needs 90g. Max portions from this: 5000/90 = 55.55... so 55 portions.
+  - LOT-0403 has 60000g free. Per portion needs 90g. Max portions from this: 60000/90 = 666.66... so 666 portions.
+  Total for ING-04: (5000 + 60000) / 90 = 65000/90 = 722.22... but we need to use FEFO, so first LOT-0401 then LOT-0403. But since we're calculating max portions, it's effectively 65000/90 ≈ 722 portions.
+- ING-21 (Firm tofu): LOT-2101 has 20000g free. Per portion needs 120g. Max portions from this: 20000/120 = 166.66... so 166 portions.
+
+The limiting ingredient is ING-21 (Firm tofu) with max 166 portions. But wait, we also need to consider line capacity. On L2, we have 150 portions available. So the maximum we can plan is min(200, 166, 150) = 150 portions.
+
+Wait, but I need to double-check the line capacities again. Let me get more details on the batches to see if there are any released batches that might have different implications... Actually, looking at the batch list for L3, PB-813 is "released" but shows "fully_allocated": false. That's strange. Let me check the batch details for PB-813.
+
+Actually, wait - I should verify the capacity usage more carefully. The rule says portions of all planned and released batches cannot exceed line capacity. So for L2:
+- PB-822: 150 portions (planned)
+Total: 150 portions on L2 with capacity 300. So 150 remaining.
+
+But wait, I should also check if there are any other batches on L2 that might be released but not shown... Actually the list_batches returned only 1 batch for L2. Let me verify by checking all batches without date filter for L2... No, that's not necessary. The current info shows 150 portions planned on L2.
+
+So L2 has 150 portions capacity remaining. But we also have stock constraints:
+- ING-02: 20000g / 100g = 200 portions
+- ING-03: 5000g / 20g = 250 portions
+- ING-04: 65000g / 90g = 722 portions (but must use FEFO)
+- ING-21: 20000g / 120g = 166.66... = 166 portions
+
+So the limiting factor is ING-21 with 166 portions, but L2 only has room for 150 portions. So we can plan up to 150 portions on L2.
+
+Wait, but let me reconsider. The user said "up to 200". So we're capped at 200 by the request, but also by stock and line capacity. So the answer is min(200, 166, 150) = 150 portions.
+
+But wait - I need to check if L2 is actually the line with the most room. Let me recalculate:
+- L1: Capacity 400. PB-820 (200) + PB-821 (100) = 300 used. Remaining: 100.
+- L2: Capacity 300. PB-822 (150) = 150 used. Remaining: 150.
+- L3: Capacity 250. PB-810 (100) + PB-813 (60) + PB-814 (70) = 230 used. Remaining: 20.
+
+So yes, L2 has the most room (150 portions).
+
+But wait - I notice that PB-820 is RC-01 (Thai Green Curry), not RC-02 (Thai Green Curry with Tofu). These are different recipes. Let me confirm by checking RC-01's recipe... Actually, I don't need to. The user specifically asked for Thai Green Curry with Tofu (RC-02).
+
+So I should plan 150 portions of RC-02 on L2 for 2026-11-24.
+
+But wait - let me also verify that there are no other constraints. The allergens for RC-02 are ["crustacean", "soy"]. Neither is peanut or tree_nut, so it's fine for all lines including L3 (nut-free). So L2 is fine.
+
+Now let me create the batch with 150 portions on L2 for 2026-11-24.
+</think>
+
+<tool_call>
+<function=create_batch>
+<parameter=recipe_id>
+RC-02
+</parameter>
+<parameter=portions>
+150
+</parameter>
+<parameter=date>
+2026-11-24
+</parameter>
+<parameter=line>
+L2
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"ok": true, "batch": {"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": false}}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Good, batch PB-900 is created. Now I need to allocate all ingredients following the stock rules (FEFO - first expiry first out).
+
+Let me get the batch details to see what's needed:
+</think>
+
+<tool_call>
+<function=get_batch>
+<parameter=batch_id>
+PB-900
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": false, "ingredients": [{"ingredient_id": "ING-02", "ingredient": "Coconut milk", "needed": 15000, "allocated": 0, "missing": 15000, "lots": {}}, {"ingredient_id": "ING-03", "ingredient": "Green curry paste", "needed": 3000, "allocated": 0, "missing": 3000, "lots": {}}, {"ingredient_id": "ING-04", "ingredient": "Jasmine rice", "needed": 13500, "allocated": 0, "missing": 13500, "lots": {}}, {"ingredient_id": "ING-21", "ingredient": "Firm tofu", "needed": 18000, "allocated": 0, "missing": 18000, "lots": {}}], "allergens": ["crustacean", "soy"]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Now I need to allocate ingredients following FEFO rules. Let me check the lots again in order:
+
+For ING-02 (Coconut milk):
+- Only LOT-0202 with 20000g free, expires 2027-02-01. Need 15000g. Allocate all 15000g from LOT-0202.
+
+For ING-03 (Green curry paste):
+- Only LOT-0301 with 5000g free, expires 2027-01-31. Need 3000g. Allocate all 3000g from LOT-0301.
+
+For ING-04 (Jasmine rice):
+- LOT-0401: 5000g free, expires 2026-11-26 (earliest)
+- LOT-0403: 60000g free, expires 2027-06-30
+Need 13500g total. FEFO says use earliest expiring first.
+First allocate from LOT-0401: 5000g (all of it).
+Still need 13500 - 5000 = 8500g.
+Then allocate from LOT-0403: 8500g.
+
+For ING-21 (Firm tofu):
+- Only LOT-2101 with 20000g free, expires 2026-12-03. Need 18000g. Allocate all 18000g from LOT-2101.
+
+Let me allocate each lot:
+</think>
+
+<tool_call>
+<function=allocate_lot>
+<parameter=batch_id>
+PB-900
+</parameter>
+<parameter=lot_id>
+LOT-0202
+</parameter>
+<parameter=grams>
+15000
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=allocate_lot>
+<parameter=batch_id>
+PB-900
+</parameter>
+<parameter=lot_id>
+LOT-0301
+</parameter>
+<parameter=grams>
+3000
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=allocate_lot>
+<parameter=batch_id>
+PB-900
+</parameter>
+<parameter=lot_id>
+LOT-0401
+</parameter>
+<parameter=grams>
+5000
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=allocate_lot>
+<parameter=batch_id>
+PB-900
+</parameter>
+<parameter=lot_id>
+LOT-0403
+</parameter>
+<parameter=grams>
+8500
+</parameter>
+</function>
+</tool_call>
+<tool_call>
+<function=allocate_lot>
+<parameter=batch_id>
+PB-900
+</parameter>
+<parameter=lot_id>
+LOT-2101
+</parameter>
+<parameter=grams>
+18000
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0202", "allocated_from_lot": 15000, "ingredient_missing_now": 0}
+</tool_response>
+<tool_response>
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0301", "allocated_from_lot": 3000, "ingredient_missing_now": 0}
+</tool_response>
+<tool_response>
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0401", "allocated_from_lot": 5000, "ingredient_missing_now": 8500}
+</tool_response>
+<tool_response>
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-0403", "allocated_from_lot": 8500, "ingredient_missing_now": 0}
+</tool_response>
+<tool_response>
+{"ok": true, "batch_id": "PB-900", "lot_id": "LOT-2101", "allocated_from_lot": 18000, "ingredient_missing_now": 0}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Great, all allocations were successful. Now let me verify the batch is fully allocated by checking its status again.
+</think>
+
+<tool_call>
+<function=get_batch>
+<parameter=batch_id>
+PB-900
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": true, "ingredients": [{"ingredient_id": "ING-02", "ingredient": "Coconut milk", "needed": 15000, "allocated": 15000, "missing": 0, "lots": {"LOT-0202": 15000}}, {"ingredient_id": "ING-03", "ingredient": "Green curry paste", "needed": 3000, "allocated": 3000, "missing": 0, "lots": {"LOT-0301": 3000}}, {"ingredient_id": "ING-04", "ingredient": "Jasmine rice", "needed": 13500, "allocated": 13500, "missing": 0, "lots": {"LOT-0401": 5000, "LOT-0403": 8500}}, {"ingredient_id": "ING-21", "ingredient": "Firm tofu", "needed": 18000, "allocated": 18000, "missing": 0, "lots": {"LOT-2101": 18000}}], "allergens": ["crustacean", "soy"]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Perfect! The batch is fully allocated (fully_allocated: true). Now I need to release it to production.
+</think>
+
+<tool_call>
+<function=release_batch>
+<parameter=batch_id>
+PB-900
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"ok": true, "batch": {"batch_id": "PB-900", "recipe_id": "RC-02", "recipe": "Thai Green Curry with Tofu", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "released", "fully_allocated": true}}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+Wait, let me double-check my capacity calculation. I need to make sure that after releasing PB-900 (150 portions), the total on L2 doesn't exceed 300.
+
+Before: PB-822 (150 portions) on L2.
+After adding PB-900 (150 portions): 150 + 150 = 300, which equals the capacity of 300. That's fine.
+
+But wait - I should also verify that the other lines' calculations were correct. Let me think again...
+
+L1: Capacity 400. PB-820 (200) + PB-821 (100) = 300 used. Remaining: 100.
+L2: Capacity 300. PB-822 (150) = 150 used. Remaining before adding PB-900: 150. After adding: 300 used, which is exactly the capacity. Good.
+L3: Capacity 250. PB-810 (100) + PB-813 (60) + PB-814 (70) = 230 used. Remaining: 20.
+
+So L2 had the most room (150 portions available), and we used exactly that much.
+
+But wait - I just realized something. The user said "plan as many portions as possible, up to 200". I calculated based on stock limitations that ING-21 (Firm tofu) limits us to 166 portions (20000/120 = 166.66). But then I also considered line capacity of L2 which is 150 remaining. So min(200, 166, 150) = 150.
+
+But wait, let me recalculate the stock limitations more carefully:
+- ING-02: 20000g / 100g = 200 portions
+- ING-03: 5000g / 20g = 250 portions
+- ING-04: 65000g / 90g = 722.22... portions (but FEFO means we use LOT-0401 first which has 5000g, then LOT-0403)
+- ING-21: 20000g / 120g = 166.66... portions
+
+So the limiting ingredient is ING-21 with 166 portions (integer division). But wait - can we have fractional portions? No, portions must be integers. So max portions limited by stock is floor(20000/120) = 166.
+
+But then line capacity limits us to 150 on L2. So 150 is correct.
+
+Actually wait - I should double-check if there's any other constraint I'm missing. Let me verify the recipe allergens again... RC-02 has ["crustacean", "soy"]. Neither is peanut or tree_nut, so it's fine for L2 (and all lines).
+
+So 150 portions on L2 is correct.
+
+But wait - I just realized I might have made an error. Let me check the batch details for the existing batches again to make sure I calculated the capacity correctly...
+
+Actually, I already listed the batches for each line on 2026-11-24. Let me verify once more by checking each batch's details to see if they're really planned/released and their portions...
+
+Actually, the list_batches already gave me the info I need. But let me just verify PB-822 (the only batch on L2) to be sure:
+</think>
+
+<tool_call>
+<function=get_batch>
+<parameter=batch_id>
+PB-822
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"batch_id": "PB-822", "recipe_id": "RC-08", "recipe": "Lentil Dal", "portions": 150, "date": "2026-11-24", "line": "L2", "status": "planned", "fully_allocated": false, "ingredients": [{"ingredient_id": "ING-08", "ingredient": "Red lentils", "needed": 12000, "allocated": 0, "missing": 12000, "lots": {}}, {"ingredient_id": "ING-09", "ingredient": "Chopped tomatoes", "needed": 15000, "allocated": 0, "missing": 15000, "lots": {}}, {"ingredient_id": "ING-10", "ingredient": "Onion", "needed": 7500, "allocated": 0, "missing": 7500, "lots": {}}, {"ingredient_id": "ING-11", "ingredient": "Curry spice mix", "needed": 750, "allocated": 0, "missing": 750, "lots": {}}], "allergens": ["mustard"]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>

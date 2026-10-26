@@ -1,0 +1,26 @@
+A / hard: 25 tasks, 0 already done
+[1/25] H01 strict=False lenient=False tokens=8212 turns=12 255s
+[2/25] H14 strict=False lenient=False tokens=15815 turns=26 532s
+[3/25] H07 strict=True lenient=True tokens=15594 turns=22 531s
+[4/25] H11 strict=False lenient=False tokens=18334 turns=10 600s TRUNCATED
+[5/25] H06 strict=False lenient=False tokens=12384 turns=15 412s
+[6/25] H09 strict=True lenient=True tokens=12268 turns=12 430s
+[7/25] H16 strict=False lenient=False tokens=19690 turns=22 652s
+[8/25] H12 strict=True lenient=True tokens=13571 turns=22 518s
+[9/25] H18 strict=True lenient=True tokens=7152 turns=11 245s
+[10/25] H02 strict=True lenient=True tokens=12088 turns=26 390s
+[11/25] H08 strict=True lenient=True tokens=8739 turns=16 286s
+[12/25] H23 strict=True lenient=True tokens=19152 turns=20 654s
+[13/25] H05 strict=True lenient=True tokens=13353 turns=29 459s
+[14/25] H04 strict=False lenient=False tokens=18931 turns=21 628s
+[15/25] H03 strict=True lenient=True tokens=14611 turns=22 480s
+[16/25] H25 strict=False lenient=False tokens=29159 turns=26 1068s
+[17/25] H24 strict=True lenient=True tokens=3819 turns=8 166s
+[18/25] H22 strict=False lenient=False tokens=19253 turns=20 649s
+[19/25] H15 strict=True lenient=True tokens=10089 turns=14 330s
+[20/25] H17 strict=True lenient=True tokens=7173 turns=10 231s
+[21/25] H19 strict=True lenient=True tokens=14612 turns=28 513s
+[22/25] H13 strict=True lenient=True tokens=9055 turns=32 344s
+[23/25] H10 strict=False lenient=False tokens=15239 turns=11 520s
+[24/25] H21 strict=True lenient=True tokens=20581 turns=11 689s
+[25/25] H20 strict=True lenient=True tokens=5594 turns=13 190s

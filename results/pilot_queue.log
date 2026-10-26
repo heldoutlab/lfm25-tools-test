@@ -1,0 +1,9 @@
+10-23 01:30 start pilot: outside model (Muse Glimmer 30B)
+10-23 02:46 start pilot: arm B (LFM2.5)
+10-23 02:46 waiting for the Qwen file
+10-23 02:46 start pilot: arm A (Qwen3.6)
+10-23 02:46 PILOT DONE
+10-23 02:47 model folder renamed to match config (fetch.py had used ~/models/lfm25-test); restarting arms
+10-23 02:47 start pilot: arm B (LFM2.5)
+10-23 03:07 start pilot: arm A (Qwen3.6)
+10-23 03:29 PILOT DONE

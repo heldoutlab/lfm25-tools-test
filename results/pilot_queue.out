@@ -1,0 +1,34 @@
+10-23 01:30 start pilot: outside model (Muse Glimmer 30B)
+X-glimmer30b / pilot: 6 tasks, 0 already done
+[1/6] TP3 strict=True lenient=True tokens=4634 turns=17 857s
+[2/6] TP5 strict=True lenient=True tokens=3698 turns=11 743s
+[3/6] TP4 strict=True lenient=True tokens=3045 turns=14 597s
+[4/6] TP6 strict=True lenient=True tokens=4365 turns=13 840s
+[5/6] TP2 strict=True lenient=True tokens=3141 turns=19 594s
+[6/6] TP1 strict=True lenient=True tokens=4552 turns=15 859s
+10-23 02:46 start pilot: arm B (LFM2.5)
+B / pilot: 6 tasks, 0 already done
+Traceback (most recent call last):
+  File "/Users/admin/dev/company/ai-claims/tests/lfm25-tools/harness/run.py", line 332, in <module>
+    main()
+  File "/Users/admin/dev/company/ai-claims/tests/lfm25-tools/harness/run.py", line 293, in main
+    manifest["model_sha256"] = sha256_file(model_path)
+                               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/dev/company/ai-claims/tests/lfm25-tools/harness/run.py", line 115, in sha256_file
+    with open(path, "rb") as f:
+         ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/admin/models/lfm25-tools-test/LFM2.5-24B-A2B-Q4_K_M.gguf'
+10-23 02:46 waiting for the Qwen file
+10-23 02:46 start pilot: arm A (Qwen3.6)
+A / pilot: 6 tasks, 0 already done
+Traceback (most recent call last):
+  File "/Users/admin/dev/company/ai-claims/tests/lfm25-tools/harness/run.py", line 332, in <module>
+    main()
+  File "/Users/admin/dev/company/ai-claims/tests/lfm25-tools/harness/run.py", line 293, in main
+    manifest["model_sha256"] = sha256_file(model_path)
+                               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/admin/dev/company/ai-claims/tests/lfm25-tools/harness/run.py", line 115, in sha256_file
+    with open(path, "rb") as f:
+         ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/admin/models/lfm25-tools-test/Qwen_Qwen3.6-35B-A3B-Q4_K_M.gguf'
+10-23 02:46 PILOT DONE

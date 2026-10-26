@@ -2,7 +2,24 @@
 
 Pre-registered test by [Held Out Lab](https://heldoutlab.substack.com): independent tests of AI model claims, with the rules fixed before the run.
 
-**Status: pre-registered and amended before the main run; not yet run on the public tasks.** The claim, the pass/fail rule, the author's prediction, the settings and the sha256 of every task and harness file are in [`PREREG.md`](PREREG.md), committed and pushed before any test model was run. Results, raw model outputs and the write-up will be added here when the runs finish.
+**Status: done.** Verdict under the pre-registered rule: **not competitive.** Qwen3.6-35B-A3B solved 68 of 75 tasks (90.7%), LFM2.5-24B-A2B 37 (49.3%); gap −41.3 points, 95% interval [−52, −31]. Harder supplement: 64% vs 20%. Write-up: [heldoutlab.substack.com](https://heldoutlab.substack.com)
+
+Everything is here: the pre-registration and amendment ([`PREREG.md`](PREREG.md)), all public tasks, the harness, every raw model output (`results/`) and the analysis (`results/report.json`, `results/report.txt`). The private set's results are summarised in the write-up; its tasks stay private.
+
+### Re-run it
+
+With llama.cpp (`brew install llama.cpp`) and Python 3.12:
+
+```bash
+python3.12 fetch.py
+mv ~/models/lfm25-test ~/models/lfm25-tools-test
+cd harness
+python3.12 run.py --arm A --run main --server-bin "$(which llama-server)"
+python3.12 run.py --arm B --run main --server-bin "$(which llama-server)"
+python3.12 analyze.py
+```
+
+`fetch.py` downloads both models and checks their sha256; the `mv` fixes the folder-name mismatch recorded in `PREREG.md`. The harness is pinned to llama.cpp build b29c606e2; `--server-bin` runs it on your build and records which one. Results from other hardware, other builds or other quantizations (LFM2.5 at Q8_0 or BF16 especially) are welcome as issues.
 
 - **Claim (the vendor's wording):** LFM2.5-24B-A2B is competitive with Qwen3.6-35B-A3B on tool use.
 - **Models:** both at Q4_K_M, on stock llama.cpp, on a 32 GB M1 Pro MacBook.
@@ -18,6 +35,6 @@ grep -E '^    [0-9a-f]{64}  ' PREREG.md | grep -v items_private | sed 's/^    //
 
 This checks each file against its most recent recorded hash (three harness files were updated by Amendment 1; their original hashes remain in `PREREG.md`).
 
-Questions or corrections: hello@heldoutlab.com. [Subscribe](https://heldoutlab.substack.com/subscribe) for the results.
+Questions or corrections: hello@heldoutlab.com. [Subscribe](https://heldoutlab.substack.com/subscribe) for the next tests.
 
 Code is MIT-licensed (see `LICENSE`); task texts and results are CC BY 4.0. Tasks, graders and harness were written with help from Claude (Anthropic).

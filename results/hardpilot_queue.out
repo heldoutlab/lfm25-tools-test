@@ -1,0 +1,6 @@
+10-23 12:26 start hard_pilot: outside model (Muse Glimmer 30B), HP1-HP3
+X-glimmer30b / hard_pilot: 3 tasks, 0 already done
+[1/3] HP1 strict=True lenient=True tokens=7340 turns=33 1452s
+[2/3] HP2 strict=True lenient=True tokens=5625 turns=27 1082s
+[3/3] HP3 strict=True lenient=True tokens=8397 turns=16 1607s
+10-23 13:36 HARD PILOT DONE

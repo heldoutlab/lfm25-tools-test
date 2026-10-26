@@ -1,0 +1,23 @@
+10-23 03:30 start private B (LFM2.5)
+10-23 04:42 start private A (Qwen3.6)
+10-23 06:54 PRIVATE DONE
+10-23 12:26 start hard_pilot: outside model (Muse Glimmer 30B), HP1-HP3
+10-23 13:36 HARD PILOT DONE
+10-23 13:37 start main A (try 1)
+10-23 19:50 done main A
+10-23 19:50 start main B (try 1)
+10-24 00:08 done main B
+10-24 00:08 start hard A (try 1)
+10-24 03:25 done hard A
+10-24 03:25 start hard B (try 1)
+10-24 05:23 done hard B
+10-24 05:23 start noise A (try 1)
+10-24 11:04 done noise A
+10-24 11:04 start noise B (try 1)
+10-24 15:33 done noise B
+main A 75 records re-checked; mismatches: []
+main B 75 records re-checked; mismatches: []
+noise A 75 records re-checked; mismatches: []
+noise B 75 records re-checked; mismatches: []
+ALL SCORES REPRODUCE
+10-24 15:33 ALL DONE - report in results/report.txt

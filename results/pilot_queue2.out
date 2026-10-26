@@ -1,0 +1,18 @@
+10-23 02:47 model folder renamed to match config (fetch.py had used ~/models/lfm25-test); restarting arms
+10-23 02:47 start pilot: arm B (LFM2.5)
+B / pilot: 6 tasks, 0 already done
+[1/6] TP3 strict=True lenient=True tokens=6873 turns=24 132s
+[2/6] TP5 strict=False lenient=False tokens=6551 turns=16 122s
+[3/6] TP4 strict=True lenient=True tokens=6993 turns=12 142s
+[4/6] TP6 strict=True lenient=True tokens=10872 turns=16 221s
+[5/6] TP2 strict=False lenient=False tokens=11455 turns=13 222s
+[6/6] TP1 strict=False lenient=False tokens=17817 turns=12 331s
+10-23 03:07 start pilot: arm A (Qwen3.6)
+A / pilot: 6 tasks, 0 already done
+[1/6] TP3 strict=True lenient=True tokens=6732 turns=12 202s
+[2/6] TP5 strict=True lenient=True tokens=7529 turns=9 238s
+[3/6] TP4 strict=True lenient=True tokens=3285 turns=11 110s
+[4/6] TP6 strict=True lenient=True tokens=12005 turns=17 380s
+[5/6] TP2 strict=True lenient=True tokens=4616 turns=10 153s
+[6/6] TP1 strict=True lenient=True tokens=5891 turns=14 194s
+10-23 03:29 PILOT DONE
