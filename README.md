@@ -2,7 +2,7 @@
 
 Pre-registered test by [Held Out Lab](https://heldoutlab.substack.com): independent tests of AI model claims, with the rules fixed before the run.
 
-**Status: done.** Verdict under the pre-registered rule: **not competitive.** Qwen3.6-35B-A3B solved 68 of 75 tasks (90.7%), LFM2.5-24B-A2B 37 (49.3%); gap −41.3 points, 95% interval [−52, −31]. Harder supplement: 64% vs 20%. Write-up: [heldoutlab.substack.com](https://heldoutlab.substack.com)
+**Status: done.** Verdict under the pre-registered rule: **not competitive.** Qwen3.6-35B-A3B solved 68 of 75 tasks (90.7%), LFM2.5-24B-A2B 37 (49.3%); gap −41.3 points, 95% interval [−52, −31]. Harder supplement: 64% vs 20%. Write-up: [https://heldoutlab.substack.com/p/liquid-says-lfm25-is-competitive](https://heldoutlab.substack.com/p/liquid-says-lfm25-is-competitive)
 
 Everything is here: the pre-registration and amendment ([`PREREG.md`](PREREG.md)), all public tasks, the harness, every raw model output (`results/`) and the analysis (`results/report.json`, `results/report.txt`). The private set's results are summarised in the write-up; its tasks stay private.
 
